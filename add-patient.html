@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient - PMTCT System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .form-section {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .form-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #0d9488;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #0d9488;
+            ring: 2px;
+            ring-color: #0d9488;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="hover:text-teal-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold" data-en="Add New Patient" data-sw="Ongeza Mgonjwa Mpya">Add New Patient</h1>
+                        <p class="text-teal-100 text-sm mt-1" data-en="Register new mother in PMTCT program" data-sw="Sajili mama mpya katika programu ya PMTCT">Register new mother in PMTCT program</p>
+                    </div>
+                </div>
+                <div class="flex items-center bg-white/10 rounded-lg p-1">
+                    <button onclick="changeLanguage('en')" id="btn-en" class="px-3 py-1 rounded text-sm font-medium transition-colors bg-white text-teal-700">
+                        🇬🇧 EN
+                    </button>
+                    <button onclick="changeLanguage('sw')" id="btn-sw" class="px-3 py-1 rounded text-sm font-medium transition-colors hover:bg-white/20">
+                        🇹🇿 SW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Form -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <form id="patient-form" onsubmit="handleSubmit(event)">
+            
+            <!-- Section 1: Basic Information -->
+            <div class="form-section">
+                <h3 data-en="1. Basic Information" data-sw="1. Taarifa za Msingi">1. Basic Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Full Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Full Name" data-sw="Jina Kamili">Full Name</label>
+                        <input type="text" id="fullName" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               data-placeholder-en="e.g., JELDA LEONARD MELUGA"
+                               data-placeholder-sw="mfano, JELDA LEONARD MELUGA"
+                               placeholder="e.g., JELDA LEONARD MELUGA">
+                    </div>
+                    
+                    <!-- Date of Birth -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Date of Birth" data-sw="Tarehe ya Kuzaliwa">Date of Birth</label>
+                        <input type="date" id="dateOfBirth" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                        <p class="text-xs text-gray-500 mt-1" data-en="Age will be calculated automatically" data-sw="Umri utahesabiwa kiotomatiki">Age will be calculated automatically</p>
+                    </div>
+                    
+                    <!-- Phone Number -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Phone Number" data-sw="Namba ya Simu">Phone Number</label>
+                        <input type="tel" id="phoneNumber" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="0620223586"
+                               pattern="[0-9]{10}">
+                    </div>
+                    
+                    <!-- Sex -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Sex" data-sw="Jinsia">Sex</label>
+                        <select id="sex" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <option value="Female" data-en="Female" data-sw="Mwanamke">Female</option>
+                            <option value="Male" data-en="Male" data-sw="Mwanaume">Male</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: CTC Registration -->
+            <div class="form-section">
+                <h3 data-en="2. CTC Registration" data-sw="2. Usajili wa CTC">2. CTC Registration</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Unique CTC ID -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Unique CTC ID" data-sw="Namba ya Ulambulisho (CTC ID)">Unique CTC ID</label>
+                        <input type="text" id="uniqueCTCID" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="1040159066020">
+                    </div>
+                    
+                    <!-- NHCI -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="NHCI Number" data-sw="Namba ya Kitambulisho (NHCI)">NHCI Number</label>
+                        <input type="text" id="nhci" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="0159-000020">
+                    </div>
+                    
+                    <!-- Facility Name -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Facility Registered Name" data-sw="Aina ya Kitambulisho">Facility Registered Name</label>
+                        <input type="text" id="facilityName" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               data-placeholder-en="e.g., Nesuda Polyclinic"
+                               data-placeholder-sw="mfano, Kliniki ya Nesuda"
+                               placeholder="e.g., Nesuda Polyclinic">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Address -->
+            <div class="form-section">
+                <h3 data-en="3. Address" data-sw="3. Anwani">3. Address</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Halmashauri / Manispaa / Jiji -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Council / District" data-sw="Halmashauri / Manispaa / Jiji">Council / District</label>
+                        <input type="text" id="halmashauri" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="Dodoma">
+                    </div>
+                    
+                    <!-- Tarafa -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Tarafa" data-sw="Tarafa">Tarafa</label>
+                        <input type="text" id="tarafa" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- Kata -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Ward (Kata)" data-sw="Kata">Ward (Kata)</label>
+                        <input type="text" id="kata" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="Miyuji">
+                    </div>
+                    
+                    <!-- Mtaa / Kijiji -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Street / Village" data-sw="Mtaa / Kijiji">Street / Village</label>
+                        <input type="text" id="mtaaKijiji" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="Kisasa">
+                    </div>
+                    
+                    <!-- Jina la Mjumbe / Balozi -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Name of Mjumbe/Balozi" data-sw="Jina la Mjumbe/Balozi">Name of Mjumbe/Balozi</label>
+                        <input type="text" id="jinaMjumbe" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- Jina la Mkuu wa Kaya -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Name of Household Head" data-sw="Jina la Mkuu wa Kaya">Name of Household Head</label>
+                        <input type="text" id="mkuuKaya" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- GPS Coordinates (Optional) -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="📍 GPS Coordinates (Optional)" data-sw="📍 Kuratibu za GPS (Si lazima)">📍 GPS Coordinates (Optional)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="latitude" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                   placeholder="Latitude (e.g., -6.1630)">
+                            <input type="text" id="longitude" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                   placeholder="Longitude (e.g., 35.7516)">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1" data-en="For mapping patient locations" data-sw="Kwa kuonyesha maeneo ya wagonjwa kwenye ramani">For mapping patient locations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: HIV Information -->
+            <div class="form-section">
+                <h3 data-en="4. HIV Information" data-sw="4. Taarifa za VVU">4. HIV Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Date HIV Diagnosed -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Date HIV Diagnosed" data-sw="Tarehe Alipogunduliwa HIV">Date HIV Diagnosed</label>
+                        <input type="date" id="hivDiagnosisDate" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- Date ART Started -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Date ART Started" data-sw="Tarehe ya Kuanza ARV">Date ART Started</label>
+                        <input type="date" id="artStartDate" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- WHO Stage -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="WHO Stage at Start" data-sw="WHO Stage Mwanzoni">WHO Stage at Start</label>
+                        <select id="whoStage" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <option value="">Select / Chagua...</option>
+                            <option value="1">Stage 1</option>
+                            <option value="2">Stage 2</option>
+                            <option value="3">Stage 3</option>
+                            <option value="4">Stage 4</option>
+                        </select>
+                    </div>
+                    
+                    <!-- ARV Regimen -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Current ARV Regimen" data-sw="Vifupi vya Dawa za ARV">Current ARV Regimen</label>
+                        <input type="text" id="arvRegimen" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="TLD"
+                               value="TLD">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Initial Lab Tests (Today) -->
+            <div class="form-section">
+                <h3 data-en="5. Initial Lab Tests (Today)" data-sw="5. Vipimo vya Awali (Leo)">5. Initial Lab Tests (Today)</h3>
+                
+                <div class="bg-teal-50 border-l-4 border-teal-500 p-4 mb-4">
+                    <p class="text-sm text-teal-800" data-en="⚠️ CD4 is required for all new patients at registration" data-sw="⚠️ CD4 inahitajika kwa wagonjwa wote wapya wakati wa usajili">⚠️ CD4 is required for all new patients at registration</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- CD4 -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="CD4 Count (cells/μL)" data-sw="Majibu ya CD4 (cells/μL)">CD4 Count (cells/μL)</label>
+                        <input type="number" id="cd4" required min="0" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="420">
+                        <p class="text-xs text-gray-500 mt-1" data-en="Normal: >350" data-sw="Kawaida: >350">Normal: >350</p>
+                    </div>
+                    
+                    <!-- ALT -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="ALT (U/L)" data-sw="ALT (U/L)">ALT (U/L)</label>
+                        <input type="number" id="alt" min="0" step="0.1"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="25">
+                    </div>
+                    
+                    <!-- Creatinine -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Creatinine (mg/dL)" data-sw="Creatinine (mg/dL)">Creatinine (mg/dL)</label>
+                        <input type="number" id="creatinine" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                               placeholder="0.9">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 6: Pregnancy Status -->
+            <div class="form-section">
+                <h3 data-en="6. Pregnancy Status" data-sw="6. Hali ya Ujauzito">6. Pregnancy Status</h3>
+                
+                <div class="space-y-4">
+                    <!-- Is Pregnant? -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Is the patient currently pregnant?" data-sw="Je, mgonjwa ana mimba sasa?">Is the patient currently pregnant?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="pregnant" value="yes" onchange="togglePregnancyFields()" class="mr-2">
+                                <span data-en="Yes" data-sw="Ndiyo">Yes</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="pregnant" value="no" onchange="togglePregnancyFields()" checked class="mr-2">
+                                <span data-en="No" data-sw="Hapana">No</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Expected Delivery Date (shown only if pregnant) -->
+                    <div id="pregnancy-fields" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Expected Delivery Date (EDD)" data-sw="Tarehe ya Kujifungua (EDD)">Expected Delivery Date (EDD)</label>
+                        <input type="date" id="expectedDeliveryDate" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    
+                    <!-- Breastfeeding -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Is the patient currently breastfeeding?" data-sw="Je, mgonjwa ananyonyesha sasa?">Is the patient currently breastfeeding?</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="breastfeeding" value="yes" class="mr-2">
+                                <span data-en="Yes" data-sw="Ndiyo">Yes</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="breastfeeding" value="no" checked class="mr-2">
+                                <span data-en="No" data-sw="Hapana">No</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex justify-between items-center mt-8">
+                <a href="index.html" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors" data-en="Cancel" data-sw="Ghairi">Cancel</a>
+                <button type="submit" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium" data-en="Save Patient" data-sw="Hifadhi Mgonjwa">Save Patient</button>
+            </div>
+        </form>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <p class="text-sm" data-en="Developed by Dr. Mariia Rukavishnikova" data-sw="Imetengenezwa na Daktari Mariia Rukavishnikova">Developed by Dr. Mariia Rukavishnikova</p>
+                <p class="text-xs text-gray-400 mt-1">PMTCT Management System v1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="patient-form.js"></script>
+</body>
+</html>
