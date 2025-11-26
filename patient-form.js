@@ -91,6 +91,31 @@ function togglePregnancyFields() {
     }
 }
 
+function toggleChildFields() {
+    const isBreastfeeding = document.querySelector('input[name="breastfeeding"]:checked').value === 'yes';
+    const childFields = document.getElementById('child-fields');
+    
+    if (isBreastfeeding) {
+        childFields.classList.remove('hidden');
+        document.getElementById('childName').required = true;
+        document.getElementById('childDateOfBirth').required = true;
+        document.getElementById('childSex').required = true;
+        document.getElementById('childRiskLevel').required = true;
+    } else {
+        childFields.classList.add('hidden');
+        document.getElementById('childName').required = false;
+        document.getElementById('childDateOfBirth').required = false;
+        document.getElementById('childSex').required = false;
+        document.getElementById('childRiskLevel').required = false;
+        // Clear fields
+        document.getElementById('childName').value = '';
+        document.getElementById('childDateOfBirth').value = '';
+        document.getElementById('childSex').value = '';
+        document.getElementById('childHEIDNumber').value = '';
+        document.getElementById('childRiskLevel').value = '';
+    }
+}
+
 // ============================================
 // FORM SUBMISSION
 // ============================================
@@ -132,7 +157,7 @@ function handleSubmit(event) {
         whoStage: document.getElementById('whoStage').value,
         currentARV: document.getElementById('arvRegimen').value.trim(),
         
-        // Initial Lab Tests
+        // Lab test histories (will be filled during visits)
         cd4History: [],
         hvlHistory: [],
         altHistory: [],
@@ -143,7 +168,7 @@ function handleSubmit(event) {
         latestCD4: null,
         latestVL: null,
         
-        // Therapy
+        // Therapy (will be determined during first visit)
         onCoTrimoxazole: false,
         onIPT: false,
         iptStartDate: null,
@@ -164,11 +189,13 @@ function handleSubmit(event) {
         expectedDeliveryDate: document.getElementById('expectedDeliveryDate').value || null,
         breastfeeding: document.querySelector('input[name="breastfeeding"]:checked').value === 'yes',
         delivered: false,
+        deliveryDate: null,
+        cervicalCancerScreeningDate: null, // Will be set 6 months after delivery
         
         // Visits
         visitHistory: [],
-        lastVisitDate: new Date().toISOString().split('T')[0],
-        nextVisitDate: calculateNextVisit(new Date()),
+        lastVisitDate: null, // No visit yet, just registration
+        nextVisitDate: null, // Will be set during first visit
         
         // Children
         children: [],
@@ -195,60 +222,19 @@ function handleSubmit(event) {
         };
     }
     
-    // Add initial CD4 test
-    const cd4Value = document.getElementById('cd4').value;
-    if (cd4Value) {
-        const cd4Result = parseInt(cd4Value);
-        formData.cd4History.push({
-            date: new Date().toISOString().split('T')[0],
-            result: cd4Result,
-            note: 'Initial test at registration'
-        });
-        formData.latestCD4 = cd4Result;
-        
-        // Determine if co-trimoxazole needed
-        if (cd4Result < 350) {
-            formData.onCoTrimoxazole = true;
-        }
-        
-        // Check if CrAg test needed (CD4 <200)
-        if (cd4Result < 200) {
-            // Will show alert after saving
-        }
-    }
-    
-    // Add initial ALT if provided
-    const altValue = document.getElementById('alt').value;
-    if (altValue) {
-        formData.altHistory.push({
-            date: new Date().toISOString().split('T')[0],
-            result: parseFloat(altValue)
-        });
-    }
-    
-    // Add initial Creatinine if provided
-    const creatinineValue = document.getElementById('creatinine').value;
-    if (creatinineValue) {
-        formData.creatinineHistory.push({
-            date: new Date().toISOString().split('T')[0],
-            result: parseFloat(creatinineValue)
-        });
-    }
-    
     // Calculate next HVL date (3 months after ART start)
     const artStart = new Date(formData.artStartDate);
     const nextHVL = new Date(artStart);
     nextHVL.setMonth(nextHVL.getMonth() + 3);
     formData.nextHVLDate = nextHVL.toISOString().split('T')[0];
     
-    // Calculate next CD4 date based on result
-    const nextCD4 = new Date();
-    if (formData.latestCD4 && formData.latestCD4 < 350) {
-        nextCD4.setMonth(nextCD4.getMonth() + 6); // Every 6 months if <350
-    } else {
-        nextCD4.setFullYear(nextCD4.getFullYear() + 1); // Yearly if >350
+    // If pregnant, calculate cervical cancer screening date (6 months after EDD)
+    if (formData.pregnant && formData.expectedDeliveryDate) {
+        const edd = new Date(formData.expectedDeliveryDate);
+        const screeningDate = new Date(edd);
+        screeningDate.setMonth(screeningDate.getMonth() + 6);
+        formData.cervicalCancerScreeningDate = screeningDate.toISOString().split('T')[0];
     }
-    formData.nextCD4Date = nextCD4.toISOString().split('T')[0];
     
     // Determine IPT start date (2 weeks after ART start)
     const iptStart = new Date(artStart);
@@ -261,11 +247,60 @@ function handleSubmit(event) {
         const iptEnd = new Date(iptStart);
         iptEnd.setMonth(iptEnd.getMonth() + 3);
         formData.iptEndDate = iptEnd.toISOString().split('T')[0];
-        formData.onIPT = true;
     }
     
-    // Save to localStorage
+    // Handle child registration if breastfeeding
+    let childData = null;
+    if (formData.breastfeeding) {
+        const childName = document.getElementById('childName').value.trim();
+        const childDOB = document.getElementById('childDateOfBirth').value;
+        const childSex = document.getElementById('childSex').value;
+        const childRisk = document.getElementById('childRiskLevel').value;
+        
+        if (childName && childDOB && childSex && childRisk) {
+            childData = {
+                id: generateUniqueId(),
+                motherId: formData.id,
+                name: childName.toUpperCase(),
+                dateOfBirth: childDOB,
+                age: calculateChildAge(childDOB),
+                sex: childSex,
+                heidNumber: document.getElementById('childHEIDNumber').value.trim(),
+                riskLevel: childRisk,
+                
+                // Breastfeeding
+                breastfeeding: true,
+                breastfeedingStopDate: null,
+                
+                // Test history
+                dbsHistory: [],
+                biolineHistory: [],
+                
+                // Medications
+                medications: [],
+                onART: false,
+                
+                // Next tests (calculated based on DOB and risk)
+                nextDBSDate: calculateNextDBS(childDOB, childRisk),
+                nextBiolineDate: null, // After 12 months if stopped breastfeeding
+                
+                // Status
+                active: true,
+                registrationDate: new Date().toISOString().split('T')[0]
+            };
+            
+            // Add child ID to mother's children array
+            formData.children.push(childData.id);
+        }
+    }
+    
+    // Save patient
     savePatient(formData);
+    
+    // Save child if exists
+    if (childData) {
+        saveChild(childData);
+    }
     
     // Save facility name for future use
     if (formData.facilityName) {
@@ -273,7 +308,7 @@ function handleSubmit(event) {
     }
     
     // Show success message and redirect
-    showSuccessAndRedirect(formData);
+    showSuccessAndRedirect(formData, childData);
 }
 
 function savePatient(patientData) {
@@ -293,35 +328,56 @@ function savePatient(patientData) {
     console.log('Patient saved:', patientData.name);
 }
 
-function showSuccessAndRedirect(patientData) {
+function saveChild(childData) {
+    // Load existing children
+    let children = [];
+    const savedChildren = localStorage.getItem('pmtct_children');
+    if (savedChildren) {
+        children = JSON.parse(savedChildren);
+    }
+    
+    // Add new child
+    children.push(childData);
+    
+    // Save back to localStorage
+    localStorage.setItem('pmtct_children', JSON.stringify(children));
+    
+    console.log('Child saved:', childData.name);
+}
+
+function showSuccessAndRedirect(patientData, childData) {
     // Build success message
     let message = currentLanguage === 'en' 
         ? `Patient registered successfully!\n\nName: ${patientData.name}\nCTC ID: ${patientData.uniqueCTCID}`
         : `Mgonjwa amesajiliwa kikamilifu!\n\nJina: ${patientData.name}\nCTC ID: ${patientData.uniqueCTCID}`;
     
+    // Add child info if registered
+    if (childData) {
+        message += '\n\n' + (currentLanguage === 'en' ? '👶 Child Registered:' : '👶 Mtoto Amesajiliwa:');
+        message += `\n${childData.name} (${childData.riskLevel === 'high' ? (currentLanguage === 'en' ? 'High Risk' : 'Hatari ya Juu') : (currentLanguage === 'en' ? 'Low Risk' : 'Hatari ya Chini')})`;
+    }
+    
     // Add important alerts
     const alerts = [];
     
-    if (patientData.latestCD4 < 200) {
-        alerts.push(currentLanguage === 'en' 
-            ? '⚠️ CD4 <200: Do CrAg test TODAY!'
-            : '⚠️ CD4 <200: Fanya kipimo cha CrAg LEO!');
+    if (patientData.cervicalCancerScreeningDate) {
+        alerts.push(currentLanguage === 'en'
+            ? `📅 Cervical cancer screening scheduled for: ${patientData.cervicalCancerScreeningDate}`
+            : `📅 Upimaji wa saratani ya mlango wa kizazi umepangwa: ${patientData.cervicalCancerScreeningDate}`);
     }
     
-    if (patientData.latestCD4 < 350) {
+    if (childData && childData.nextDBSDate) {
         alerts.push(currentLanguage === 'en'
-            ? '⚠️ CD4 <350: Start co-trimoxazole'
-            : '⚠️ CD4 <350: Anza co-trimoxazole');
+            ? `🩸 Next DBS test for ${childData.name}: ${childData.nextDBSDate}`
+            : `🩸 Kipimo cha DBS kinachofuata kwa ${childData.name}: ${childData.nextDBSDate}`);
     }
     
-    if (patientData.onIPT) {
-        alerts.push(currentLanguage === 'en'
-            ? '✅ IPT can be started (2 weeks after ART)'
-            : '✅ IPT inaweza kuanzishwa (wiki 2 baada ya ARV)');
-    }
+    alerts.push(currentLanguage === 'en'
+        ? '⚠️ Remember to schedule FIRST VISIT to record initial lab tests!'
+        : '⚠️ Kumbuka kupanga ZIARA YA KWANZA kurekodi vipimo vya awali!');
     
     if (alerts.length > 0) {
-        message += '\n\n' + (currentLanguage === 'en' ? 'Important Actions:' : 'Hatua Muhimu:') + '\n' + alerts.join('\n');
+        message += '\n\n' + (currentLanguage === 'en' ? 'Important:' : 'Muhimu:') + '\n' + alerts.join('\n');
     }
     
     // Show success alert
@@ -348,6 +404,58 @@ function calculateAge(birthDate) {
         age--;
     }
     return age;
+}
+
+function calculateChildAge(birthDate) {
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const ageInMonths = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
+    
+    if (ageInMonths < 12) {
+        return `${ageInMonths} months`;
+    } else {
+        const years = Math.floor(ageInMonths / 12);
+        const months = ageInMonths % 12;
+        if (months === 0) {
+            return `${years} year${years > 1 ? 's' : ''}`;
+        } else {
+            return `${years}y ${months}m`;
+        }
+    }
+}
+
+function calculateNextDBS(birthDate, riskLevel) {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    
+    // Calculate age in days
+    const ageInDays = Math.floor((today - birth) / (1000 * 60 * 60 * 24));
+    
+    // DBS schedule:
+    // - 72 hours (3 days) - only for high risk
+    // - 6 weeks (42 days)
+    // - 9 months (270 days)
+    
+    if (riskLevel === 'high' && ageInDays < 3) {
+        // Next DBS: at 72 hours
+        const nextDBS = new Date(birth);
+        nextDBS.setDate(nextDBS.getDate() + 3);
+        return nextDBS.toISOString().split('T')[0];
+    } else if (ageInDays < 42) {
+        // Next DBS: at 6 weeks
+        const nextDBS = new Date(birth);
+        nextDBS.setDate(nextDBS.getDate() + 42);
+        return nextDBS.toISOString().split('T')[0];
+    } else if (ageInDays < 270) {
+        // Next DBS: at 9 months
+        const nextDBS = new Date(birth);
+        nextDBS.setDate(nextDBS.getDate() + 270);
+        return nextDBS.toISOString().split('T')[0];
+    } else {
+        // After 9 months, Bioline tests start (at 12, 15, 18 months)
+        // But only after breastfeeding stops
+        return null;
+    }
 }
 
 function calculateNextVisit(date) {
