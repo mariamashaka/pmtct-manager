@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Visit - PMTCT System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .alert-critical {
+            border-left: 4px solid #dc2626;
+            background-color: #fef2f2;
+        }
+        
+        .alert-warning {
+            border-left: 4px solid #f59e0b;
+            background-color: #fffbeb;
+        }
+        
+        .alert-success {
+            border-left: 4px solid #10b981;
+            background-color: #f0fdf4;
+        }
+        
+        .alert-info {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #0d9488;
+        }
+        
+        .test-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+        
+        .recommendation {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="patient-list.html" class="hover:text-teal-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold" id="patient-name" data-en="Patient Visit" data-sw="Ziara ya Mgonjwa">Patient Visit</h1>
+                        <p class="text-teal-100 text-sm mt-1" id="patient-info"></p>
+                    </div>
+                </div>
+                <div class="flex items-center bg-white/10 rounded-lg p-1">
+                    <button onclick="changeLanguage('en')" id="btn-en" class="px-3 py-1 rounded text-sm font-medium transition-colors bg-white text-teal-700">
+                        🇬🇧 EN
+                    </button>
+                    <button onclick="changeLanguage('sw')" id="btn-sw" class="px-3 py-1 rounded text-sm font-medium transition-colors hover:bg-white/20">
+                        🇹🇿 SW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+            <p class="mt-4 text-gray-600" data-en="Loading patient data..." data-sw="Inapakia data ya mgonjwa...">Loading patient data...</p>
+        </div>
+
+        <!-- Visit Content (hidden initially) -->
+        <div id="visit-content" class="hidden">
+            
+            <!-- Alerts Section -->
+            <div class="section-card">
+                <h2 class="section-title" data-en="🚨 Alerts & Actions Needed" data-sw="🚨 Tahadhari na Hatua Zinazohitajika">🚨 Alerts & Actions Needed</h2>
+                <div id="alerts-container"></div>
+            </div>
+
+            <!-- Today's Checklist -->
+            <div class="section-card">
+                <h2 class="section-title" data-en="📋 Today's Checklist" data-sw="📋 Orodha ya Leo">📋 Today's Checklist</h2>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                        <input type="checkbox" id="check-weight" class="mr-3 w-5 h-5 text-teal-600">
+                        <span data-en="Weigh patient" data-sw="Pima uzito wa mgonjwa">Weigh patient</span>
+                        <input type="number" step="0.1" placeholder="kg" class="ml-auto w-20 px-2 py-1 border rounded">
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                        <input type="checkbox" id="check-tb" class="mr-3 w-5 h-5 text-teal-600">
+                        <span data-en="TB Screening (fill form)" data-sw="Upimaji wa TB (jaza fomu)">TB Screening (fill form)</span>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                        <input type="checkbox" id="check-sti" class="mr-3 w-5 h-5 text-teal-600">
+                        <span data-en="STI Screening (fill form)" data-sw="Upimaji wa STI (jaza fomu)">STI Screening (fill form)</span>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors cursor-pointer border-l-4 border-green-500">
+                        <input type="checkbox" id="check-arv" class="mr-3 w-5 h-5 text-green-600">
+                        <span class="font-semibold" data-en="Dispense ARV (TLD)" data-sw="Toa dawa za ARV (TLD)">Dispense ARV (TLD)</span>
+                        <select class="ml-auto px-2 py-1 border rounded">
+                            <option value="30">30 days</option>
+                            <option value="60">60 days</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Lab Tests Section -->
+            <div class="section-card">
+                <h2 class="section-title" data-en="🧪 Lab Tests - Enter Results" data-sw="🧪 Vipimo vya Maabara - Ingiza Matokeo">🧪 Lab Tests - Enter Results</h2>
+                
+                <!-- CD4 -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-2" data-en="CD4 Count" data-sw="Hesabu ya CD4">CD4 Count</h3>
+                    <div class="test-input-group">
+                        <div class="flex-1">
+                            <input type="number" id="cd4-input" min="0" placeholder="Enter CD4 count (cells/μL)" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                        <button onclick="saveCD4()" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors" data-en="Save CD4" data-sw="Hifadhi CD4">Save CD4</button>
+                    </div>
+                    <div id="cd4-recommendation" class="hidden"></div>
+                    <div class="mt-2 text-sm text-gray-600">
+                        <span data-en="Last CD4:" data-sw="CD4 ya mwisho:">Last CD4:</span>
+                        <span id="last-cd4" class="font-semibold">-</span>
+                        <span class="ml-4" data-en="Next due:" data-sw="Inachofuata:">Next due:</span>
+                        <span id="next-cd4" class="font-semibold">-</span>
+                    </div>
+                </div>
+
+                <!-- HVL (Viral Load) -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-2" data-en="Viral Load (HVL)" data-sw="Majibu ya Virusi (HVL)">Viral Load (HVL)</h3>
+                    <div class="test-input-group">
+                        <div class="flex-1">
+                            <input type="number" id="hvl-input" min="0" placeholder="Enter viral load (copies/mL)" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                        </div>
+                        <button onclick="saveHVL()" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors" data-en="Save HVL" data-sw="Hifadhi HVL">Save HVL</button>
+                    </div>
+                    <div id="hvl-recommendation" class="hidden"></div>
+                    <div class="mt-2 text-sm text-gray-600">
+                        <span data-en="Last HVL:" data-sw="HVL ya mwisho:">Last HVL:</span>
+                        <span id="last-hvl" class="font-semibold">-</span>
+                        <span class="ml-4" data-en="Next due:" data-sw="Inachofuata:">Next due:</span>
+                        <span id="next-hvl" class="font-semibold">-</span>
+                    </div>
+                </div>
+
+                <!-- CrAg Test -->
+                <div class="mb-6">
+                    <h3 class="font-semibold text-gray-900 mb-2" data-en="CrAg Test (if CD4 <200)" data-sw="Kipimo cha CrAg (ikiwa CD4 <200)">CrAg Test (if CD4 <200)</h3>
+                    <div class="test-input-group">
+                        <div class="flex-1">
+                            <select id="crag-input" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                <option value="">Select result / Chagua matokeo...</option>
+                                <option value="negative">Negative</option>
+                                <option value="positive">Positive</option>
+                            </select>
+                        </div>
+                        <button onclick="saveCrAg()" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors" data-en="Save CrAg" data-sw="Hifadhi CrAg">Save CrAg</button>
+                    </div>
+                    <div id="crag-recommendation" class="hidden"></div>
+                </div>
+
+                <!-- ALT & Creatinine -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-2">ALT (U/L)</h3>
+                        <div class="test-input-group">
+                            <input type="number" id="alt-input" min="0" step="0.1" placeholder="Enter ALT" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <button onclick="saveALT()" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors" data-en="Save" data-sw="Hifadhi">Save</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Creatinine (mg/dL)</h3>
+                        <div class="test-input-group">
+                            <input type="number" id="creat-input" min="0" step="0.01" placeholder="Enter Creatinine" 
+                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            <button onclick="saveCreatinine()" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors" data-en="Save" data-sw="Hifadhi">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Medications -->
+            <div class="section-card">
+                <h2 class="section-title" data-en="💊 Current Medications" data-sw="💊 Dawa za Sasa">💊 Current Medications</h2>
+                <div id="medications-list" class="space-y-2"></div>
+            </div>
+
+            <!-- Children Section -->
+            <div id="children-section" class="hidden">
+                <div class="section-card">
+                    <h2 class="section-title" data-en="👶 Children" data-sw="👶 Watoto">👶 Children</h2>
+                    <div id="children-list"></div>
+                </div>
+            </div>
+
+            <!-- Complete Visit Button -->
+            <div class="flex justify-between items-center mt-8">
+                <a href="patient-list.html" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors" data-en="Cancel" data-sw="Ghairi">Cancel</a>
+                <button onclick="completeVisit()" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg" data-en="Complete Visit" data-sw="Maliza Ziara">Complete Visit</button>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <p class="text-sm" data-en="Developed by Dr. Mariia Rukavishnikova" data-sw="Imetengenezwa na Daktari Mariia Rukavishnikova">Developed by Dr. Mariia Rukavishnikova</p>
+                <p class="text-xs text-gray-400 mt-1">PMTCT Management System v1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="visit.js"></script>
+</body>
+</html>
