@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMTCT Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .alert-card {
+            border-left: 4px solid;
+        }
+        
+        .alert-critical {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+        }
+        
+        .alert-warning {
+            border-color: #f59e0b;
+            background-color: #fffbeb;
+        }
+        
+        .alert-success {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Header with Language Switcher -->
+    <header class="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold" data-en="PMTCT Management System" data-sw="Mfumo wa Usimamizi wa PMTCT">PMTCT Management System</h1>
+                    <p class="text-teal-100 text-sm mt-1" data-en="Prevention of Mother-to-Child Transmission of HIV" data-sw="Kuzuia Maambukizi ya VVU kutoka kwa Mama kwenda kwa Mtoto">Prevention of Mother-to-Child Transmission of HIV</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center bg-white/10 rounded-lg p-1">
+                        <button onclick="changeLanguage('en')" id="btn-en" class="px-3 py-1 rounded text-sm font-medium transition-colors bg-white text-teal-700">
+                            🇬🇧 EN
+                        </button>
+                        <button onclick="changeLanguage('sw')" id="btn-sw" class="px-3 py-1 rounded text-sm font-medium transition-colors hover:bg-white/20">
+                            🇹🇿 SW
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="fade-in">
+            
+            <!-- Quick Actions -->
+            <div class="mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="showSection('add-patient')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-all border-2 border-teal-500 hover:border-teal-600">
+                        <div class="flex items-center justify-center mb-3">
+                            <svg class="w-12 h-12 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 text-center" data-en="Add New Patient" data-sw="Ongeza Mgonjwa Mpya">Add New Patient</h3>
+                    </button>
+                    
+                    <button onclick="showSection('patient-list')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-all border-2 border-blue-500 hover:border-blue-600">
+                        <div class="flex items-center justify-center mb-3">
+                            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 text-center" data-en="All Patients" data-sw="Wagonjwa Wote">All Patients</h3>
+                    </button>
+                    
+                    <button onclick="showSection('cohort-report')" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-all border-2 border-purple-500 hover:border-purple-600">
+                        <div class="flex items-center justify-center mb-3">
+                            <svg class="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 text-center" data-en="Monthly Report" data-sw="Ripoti ya Mwezi">Monthly Report</h3>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts Section -->
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span data-en="Alerts" data-sw="Tahadhari">Alerts</span>
+                    <span class="ml-2 bg-red-100 text-red-800 text-sm font-semibold px-2.5 py-0.5 rounded" id="alert-count">0</span>
+                </h2>
+                
+                <div id="alerts-container" class="space-y-3">
+                    <!-- Alerts will be dynamically inserted here -->
+                    <div class="alert-card alert-success p-4 rounded-lg">
+                        <p class="text-sm text-gray-700" data-en="No alerts at the moment. Everything looks good! 🎉" data-sw="Hakuna tahadhari kwa sasa. Kila kitu ni sawa! 🎉">No alerts at the moment. Everything looks good! 🎉</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                    <svg class="w-6 h-6 text-teal-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span data-en="Statistics" data-sw="Takwimu">Statistics</span>
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Total Mothers -->
+                    <div class="stat-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1" data-en="Total Mothers" data-sw="Mama Jumla">Total Mothers</p>
+                                <p class="text-3xl font-bold text-teal-600" id="stat-total-mothers">0</p>
+                            </div>
+                            <div class="bg-teal-100 p-3 rounded-full">
+                                <svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Children -->
+                    <div class="stat-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1" data-en="Total Children" data-sw="Watoto Jumla">Total Children</p>
+                                <p class="text-3xl font-bold text-blue-600" id="stat-total-children">0</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VL Suppressed -->
+                    <div class="stat-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1" data-en="VL <50" data-sw="VL <50">VL <50</p>
+                                <p class="text-3xl font-bold text-green-600" id="stat-vl-suppressed">0</p>
+                                <p class="text-xs text-gray-500 mt-1" id="stat-vl-suppressed-percent">0%</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VL >1000 -->
+                    <div class="stat-card bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-1" data-en="VL >1000" data-sw="VL >1000">VL >1000</p>
+                                <p class="text-3xl font-bold text-red-600" id="stat-vl-high">0</p>
+                                <p class="text-xs text-gray-500 mt-1" id="stat-vl-high-percent">0%</p>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <!-- CD4 <200 -->
+                    <div class="stat-card bg-white p-4 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600" data-en="CD4 <200" data-sw="CD4 <200">CD4 <200</p>
+                                <p class="text-2xl font-bold text-orange-600" id="stat-cd4-low">0</p>
+                            </div>
+                            <div class="text-orange-600 text-2xl">⚠️</div>
+                        </div>
+                    </div>
+
+                    <!-- Not Attending >2 weeks -->
+                    <div class="stat-card bg-white p-4 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600" data-en="Missed >2 weeks" data-sw="Hawajafika >wiki 2">Missed >2 weeks</p>
+                                <p class="text-2xl font-bold text-red-600" id="stat-missed-visits">0</p>
+                            </div>
+                            <div class="text-red-600 text-2xl">📞</div>
+                        </div>
+                    </div>
+
+                    <!-- Children DBS+ -->
+                    <div class="stat-card bg-white p-4 rounded-lg shadow">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600" data-en="Children DBS+" data-sw="Watoto DBS+">Children DBS+</p>
+                                <p class="text-2xl font-bold text-purple-600" id="stat-dbs-positive">0</p>
+                            </div>
+                            <div class="text-purple-600 text-2xl">👶</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Add Patient Section (Hidden initially) -->
+        <div id="add-patient-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-en="Add New Patient" data-sw="Ongeza Mgonjwa Mpya">Add New Patient</h2>
+                <p class="text-gray-600 mb-4" data-en="Coming soon..." data-sw="Inakuja hivi karibuni...">Coming soon...</p>
+                <button onclick="showSection('dashboard')" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors" data-en="Back to Dashboard" data-sw="Rudi Dashboard">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Patient List Section (Hidden initially) -->
+        <div id="patient-list-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-en="All Patients" data-sw="Wagonjwa Wote">All Patients</h2>
+                <p class="text-gray-600 mb-4" data-en="Coming soon..." data-sw="Inakuja hivi karibuni...">Coming soon...</p>
+                <button onclick="showSection('dashboard')" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors" data-en="Back to Dashboard" data-sw="Rudi Dashboard">Back to Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Cohort Report Section (Hidden initially) -->
+        <div id="cohort-report-section" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6" data-en="Monthly Report" data-sw="Ripoti ya Mwezi">Monthly Report</h2>
+                <p class="text-gray-600 mb-4" data-en="Coming soon..." data-sw="Inakuja hivi karibuni...">Coming soon...</p>
+                <button onclick="showSection('dashboard')" class="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors" data-en="Back to Dashboard" data-sw="Rudi Dashboard">Back to Dashboard</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <p class="text-sm" data-en="Developed by Dr. Mariia Rukavishnikova" data-sw="Imetengenezwa na Daktari Mariia Rukavishnikova">Developed by Dr. Mariia Rukavishnikova</p>
+                <p class="text-xs text-gray-400 mt-1">PMTCT Management System v1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
