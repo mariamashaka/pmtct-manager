@@ -264,47 +264,11 @@
                 </div>
             </div>
 
-            <!-- Section 5: Initial Lab Tests (Today) -->
+            <!-- Section 5: Pregnancy & Children Status -->
             <div class="form-section">
-                <h3 data-en="5. Initial Lab Tests (Today)" data-sw="5. Vipimo vya Awali (Leo)">5. Initial Lab Tests (Today)</h3>
+                <h3 data-en="5. Pregnancy & Children Status" data-sw="5. Hali ya Ujauzito na Watoto">5. Pregnancy & Children Status</h3>
                 
-                <div class="bg-teal-50 border-l-4 border-teal-500 p-4 mb-4">
-                    <p class="text-sm text-teal-800" data-en="⚠️ CD4 is required for all new patients at registration" data-sw="⚠️ CD4 inahitajika kwa wagonjwa wote wapya wakati wa usajili">⚠️ CD4 is required for all new patients at registration</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- CD4 -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="CD4 Count (cells/μL)" data-sw="Majibu ya CD4 (cells/μL)">CD4 Count (cells/μL)</label>
-                        <input type="number" id="cd4" required min="0" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                               placeholder="420">
-                        <p class="text-xs text-gray-500 mt-1" data-en="Normal: >350" data-sw="Kawaida: >350">Normal: >350</p>
-                    </div>
-                    
-                    <!-- ALT -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="ALT (U/L)" data-sw="ALT (U/L)">ALT (U/L)</label>
-                        <input type="number" id="alt" min="0" step="0.1"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                               placeholder="25">
-                    </div>
-                    
-                    <!-- Creatinine -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Creatinine (mg/dL)" data-sw="Creatinine (mg/dL)">Creatinine (mg/dL)</label>
-                        <input type="number" id="creatinine" min="0" step="0.01"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                               placeholder="0.9">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 6: Pregnancy Status -->
-            <div class="form-section">
-                <h3 data-en="6. Pregnancy Status" data-sw="6. Hali ya Ujauzito">6. Pregnancy Status</h3>
-                
-                <div class="space-y-4">
+                <div class="space-y-6">
                     <!-- Is Pregnant? -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Is the patient currently pregnant?" data-sw="Je, mgonjwa ana mimba sasa?">Is the patient currently pregnant?</label>
@@ -321,24 +285,91 @@
                     </div>
                     
                     <!-- Expected Delivery Date (shown only if pregnant) -->
-                    <div id="pregnancy-fields" class="hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" data-en="Expected Delivery Date (EDD)" data-sw="Tarehe ya Kujifungua (EDD)">Expected Delivery Date (EDD)</label>
+                    <div id="pregnancy-fields" class="hidden bg-blue-50 p-4 rounded-lg">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Expected Delivery Date (EDD)" data-sw="Tarehe ya Kujifungua (EDD)">Expected Delivery Date (EDD)</label>
                         <input type="date" id="expectedDeliveryDate" 
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                        <p class="text-xs text-gray-500 mt-2" data-en="📅 Cervical cancer screening will be automatically scheduled 6 months after delivery" data-sw="📅 Upimaji wa saratani ya mlango wa kizazi utapangwa kiotomatiki miezi 6 baada ya kujifungua">📅 Cervical cancer screening will be automatically scheduled 6 months after delivery</p>
                     </div>
+                    
+                    <hr class="my-4">
                     
                     <!-- Breastfeeding -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2" data-en="Is the patient currently breastfeeding?" data-sw="Je, mgonjwa ananyonyesha sasa?">Is the patient currently breastfeeding?</label>
                         <div class="flex space-x-4">
                             <label class="flex items-center">
-                                <input type="radio" name="breastfeeding" value="yes" class="mr-2">
+                                <input type="radio" name="breastfeeding" value="yes" onchange="toggleChildFields()" class="mr-2">
                                 <span data-en="Yes" data-sw="Ndiyo">Yes</span>
                             </label>
                             <label class="flex items-center">
-                                <input type="radio" name="breastfeeding" value="no" checked class="mr-2">
+                                <input type="radio" name="breastfeeding" value="no" onchange="toggleChildFields()" checked class="mr-2">
                                 <span data-en="No" data-sw="Hapana">No</span>
                             </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Child Registration (shown only if breastfeeding) -->
+                    <div id="child-fields" class="hidden bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                        <h4 class="font-semibold text-gray-900 mb-3" data-en="👶 Register Child" data-sw="👶 Sajili Mtoto">👶 Register Child</h4>
+                        <p class="text-sm text-gray-600 mb-4" data-en="Since mother is breastfeeding, we need to register the child in PMTCT program" data-sw="Kwa kuwa mama ananyonyesha, tunahitaji kusajili mtoto katika programu ya PMTCT">Since mother is breastfeeding, we need to register the child in PMTCT program</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Child's Name -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Child's Name" data-sw="Jina la Mtoto">Child's Name</label>
+                                <input type="text" id="childName" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                       data-placeholder-en="e.g., Baby Juma"
+                                       data-placeholder-sw="mfano, Mtoto Juma"
+                                       placeholder="e.g., Baby Juma">
+                            </div>
+                            
+                            <!-- Child's Date of Birth -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Date of Birth" data-sw="Tarehe ya Kuzaliwa">Date of Birth</label>
+                                <input type="date" id="childDateOfBirth" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            
+                            <!-- Child's Sex -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Sex" data-sw="Jinsia">Sex</label>
+                                <select id="childSex" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select / Chagua...</option>
+                                    <option value="Male" data-en="Male" data-sw="Mwanaume">Male</option>
+                                    <option value="Female" data-en="Female" data-sw="Mwanamke">Female</option>
+                                </select>
+                            </div>
+                            
+                            <!-- HEID Number (optional) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" data-en="HEID Number (if available)" data-sw="Namba ya HEID (ikiwa ipo)">HEID Number (if available)</label>
+                                <input type="text" id="childHEIDNumber" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            
+                            <!-- Risk Level -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1 required" data-en="Risk Level" data-sw="Kiwango cha Hatari">Risk Level</label>
+                                <select id="childRiskLevel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                                    <option value="">Select / Chagua...</option>
+                                    <option value="high" data-en="High Risk" data-sw="Hatari ya Juu">High Risk</option>
+                                    <option value="low" data-en="Low Risk" data-sw="Hatari ya Chini">Low Risk</option>
+                                </select>
+                                <div class="text-xs text-gray-600 mt-2 bg-white p-2 rounded">
+                                    <p class="font-semibold mb-1" data-en="High Risk:" data-sw="Hatari ya Juu:">High Risk:</p>
+                                    <ul class="list-disc list-inside text-xs space-y-1">
+                                        <li data-en="Mother had no ARV during pregnancy" data-sw="Mama hakuwa na ARV wakati wa ujauzito">Mother had no ARV during pregnancy</li>
+                                        <li data-en="Mother's VL >50 copies/ml" data-sw="VL ya mama >50 copies/ml">Mother's VL >50 copies/ml</li>
+                                        <li data-en="Mother diagnosed HIV while breastfeeding" data-sw="Mama aligunduliwa HIV anaponyonyesha">Mother diagnosed HIV while breastfeeding</li>
+                                    </ul>
+                                    <p class="font-semibold mt-2 mb-1" data-en="Low Risk:" data-sw="Hatari ya Chini:">Low Risk:</p>
+                                    <ul class="list-disc list-inside text-xs">
+                                        <li data-en="Mother on ARV >3 months before delivery & VL <50" data-sw="Mama kwenye ARV >miezi 3 kabla ya kujifungua & VL <50">Mother on ARV >3 months before delivery & VL <50</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
