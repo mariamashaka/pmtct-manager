@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient List - PMTCT System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .patient-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .patient-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-good {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-warning {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-critical {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-teal-600 to-teal-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="hover:text-teal-200 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold" data-en="All Patients" data-sw="Wagonjwa Wote">All Patients</h1>
+                        <p class="text-teal-100 text-sm mt-1" data-en="PMTCT Program Patients" data-sw="Wagonjwa wa Programu ya PMTCT">PMTCT Program Patients</p>
+                    </div>
+                </div>
+                <div class="flex items-center bg-white/10 rounded-lg p-1">
+                    <button onclick="changeLanguage('en')" id="btn-en" class="px-3 py-1 rounded text-sm font-medium transition-colors bg-white text-teal-700">
+                        🇬🇧 EN
+                    </button>
+                    <button onclick="changeLanguage('sw')" id="btn-sw" class="px-3 py-1 rounded text-sm font-medium transition-colors hover:bg-white/20">
+                        🇹🇿 SW
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Actions Bar -->
+        <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="flex-1 w-full md:max-w-md">
+                <input type="text" id="search-input" onkeyup="filterPatients()" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                       data-placeholder-en="Search by name, CTC ID..."
+                       data-placeholder-sw="Tafuta kwa jina, CTC ID..."
+                       placeholder="Search by name, CTC ID...">
+            </div>
+            
+            <div class="flex gap-2 flex-wrap">
+                <select id="filter-status" onchange="filterPatients()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500">
+                    <option value="all" data-en="All Status" data-sw="Hali Zote">All Status</option>
+                    <option value="good" data-en="Good (VL<50)" data-sw="Nzuri (VL<50)">Good (VL<50)</option>
+                    <option value="warning" data-en="Warning (VL 50-1000)" data-sw="Onyo (VL 50-1000)">Warning (VL 50-1000)</option>
+                    <option value="critical" data-en="Critical (VL>1000)" data-sw="Hatari (VL>1000)">Critical (VL>1000)</option>
+                </select>
+                
+                <a href="add-patient.html" class="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors font-medium whitespace-nowrap">
+                    <span data-en="+ Add Patient" data-sw="+ Ongeza Mgonjwa">+ Add Patient</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Patient Count -->
+        <div class="mb-4">
+            <p class="text-gray-600">
+                <span data-en="Showing" data-sw="Inaonyesha">Showing</span>
+                <span id="patient-count" class="font-semibold text-gray-900">0</span>
+                <span data-en="patients" data-sw="wagonjwa">patients</span>
+            </p>
+        </div>
+
+        <!-- Patient List -->
+        <div id="patient-list" class="grid grid-cols-1 gap-4">
+            <!-- Patients will be inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-12">
+            <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900" data-en="No patients found" data-sw="Hakuna wagonjwa waliopatikana">No patients found</h3>
+            <p class="mt-2 text-gray-600" data-en="Try adjusting your search or filters" data-sw="Jaribu kubadilisha utafutaji wako au kichujio">Try adjusting your search or filters</p>
+            <a href="add-patient.html" class="mt-4 inline-block px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors">
+                <span data-en="Add First Patient" data-sw="Ongeza Mgonjwa wa Kwanza">Add First Patient</span>
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="text-center">
+                <p class="text-sm" data-en="Developed by Dr. Mariia Rukavishnikova, Pediatrician" data-sw="Imetengenezwa na Daktari Mariia Rukavishnikova, Daktari wa Watoto">Developed by Dr. Mariia Rukavishnikova, Pediatrician</p>
+                <p class="text-xs text-gray-400 mt-1">PMTCT Management System v1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="patient-list.js"></script>
+</body>
+</html>
